@@ -17,7 +17,17 @@ Vite writes the deployable site to `dist/`.
 
 ## Waitlist / payment destination
 
-Open `src/config.js` and replace `YOUR_PAYMENT_OR_WAITLIST_URL` with the official Razorpay, Stripe, checkout, or waitlist URL. Every paid-waitlist CTA reads this one setting. Until a URL is configured, the buttons show the launch information dialog.
+Open `src/config.js` and replace `YOUR_PAYMENT_URL_HERE` in `WAITLIST_PAYMENT_URL` with the official Razorpay, Stripe, or other checkout URL. All paid-waitlist CTAs use this setting. Until a URL is configured, CTAs lead to `/payments`, where the payment action shows the launch information dialog without collecting payment details.
+
+## Pages
+
+- `/` — existing landing page and countdown
+- `/teams`
+- `/benefits`
+- `/story`
+- `/payments`
+
+Netlify serves the React app for these frontend routes so direct visits and refreshes continue to work.
 
 ## Netlify
 

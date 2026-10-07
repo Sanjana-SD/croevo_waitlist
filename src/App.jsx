@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { WAITLIST_URL } from './config.js';
+import { useCurrentPath } from './components/RouteLink.jsx';
+import { SiteFooter, SiteHeader } from './components/SiteChrome.jsx';
+import WaitlistButton from './components/WaitlistButton.jsx';
+import Benefits from './pages/Benefits.jsx';
+import NotFound from './pages/NotFound.jsx';
+import Payments from './pages/Payments.jsx';
+import Story from './pages/Story.jsx';
+import Teams from './pages/Teams.jsx';
 
 const launchDate = new Date(2026, 9, 15, 0, 0, 0);
 const faqItems = [
@@ -12,14 +19,6 @@ const faqItems = [
 
 function Arrow() {
   return <svg aria-hidden="true" viewBox="0 0 20 20" className="arrow-icon"><path d="M4 10h11M10 4l6 6-6 6" /></svg>;
-}
-
-function WaitlistButton({ children = 'Join the Paid Waitlist', className = '' }) {
-  const configured = WAITLIST_URL.trim() !== '' && WAITLIST_URL !== 'YOUR_PAYMENT_OR_WAITLIST_URL';
-  const props = { className: `button button-primary ${className}`, onClick: configured ? undefined : (event) => { event.preventDefault(); window.dispatchEvent(new Event('croevo:waitlist')); } };
-  return configured
-    ? <a {...props} href={WAITLIST_URL} target="_blank" rel="noreferrer">{children}<Arrow /></a>
-    : <button {...props} type="button">{children}<Arrow /></button>;
 }
 
 function ProductPreview() {
@@ -46,6 +45,7 @@ function ProductPreview() {
 }
 
 function App() {
+  const currentPath = useCurrentPath();
   const [remaining, setRemaining] = useState(() => Math.max(0, launchDate.getTime() - Date.now()));
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -67,7 +67,7 @@ function App() {
     }), { threshold: 0.12 });
     items.forEach((item) => observer.observe(item));
     return () => observer.disconnect();
-  }, []);
+  }, [currentPath]);
 
   useEffect(() => {
     if (!modalOpen) return undefined;
@@ -81,22 +81,12 @@ function App() {
   const hours = Math.floor((remaining % 86400000) / 3600000);
   const minutes = Math.floor((remaining % 3600000) / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
-  const closeMenu = () => setMenuOpen(false);
-
   return (
     <>
-      <header className={`site-header${scrolled ? ' is-scrolled' : ''}`}>
-        <nav className="nav-shell" aria-label="Main navigation">
-          <a href="#home" className="brand" aria-label="Croevo home" onClick={closeMenu}><span className="brand-icon">c<span>.</span></span><span className="brand-name">CROEVO</span></a>
-          <button className={`menu-toggle${menuOpen ? ' active' : ''}`} aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><span/><span/><span/></button>
-          <div className={`nav-links${menuOpen ? ' menu-open' : ''}`}>
-            <a href="#home" onClick={closeMenu}>Home</a><a href="#why" onClick={closeMenu}>Why Croevo</a><a href="#how" onClick={closeMenu}>How It Works</a><a href="#faq" onClick={closeMenu}>FAQ</a>
-            <WaitlistButton className="nav-cta">Join Waitlist</WaitlistButton>
-          </div>
-        </nav>
-      </header>
+      <SiteHeader currentPath={currentPath} menuOpen={menuOpen} setMenuOpen={setMenuOpen} scrolled={scrolled} />
 
-      <main>
+      <main className="route-content" key={currentPath}>
+        {currentPath === '/' ? <>
         <section className="hero section-shell" id="home">
           <div className="hero-copy">
             <div className="announcement"><span className="announcement-pulse"/> PAID WAITLIST OPENS <i/> 15 OCTOBER 2026</div>
@@ -165,11 +155,16 @@ function App() {
         <section className="final-cta section-shell reveal" id="contact">
           <div className="final-orbit"/><div className="final-content"><span className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</span><h2>Be <span>early.</span></h2><p>15 October. The waitlist opens.</p><WaitlistButton /><small>For more information, DM me or Adhinav.</small></div>
         </section>
+        </> : currentPath === '/teams' ? <Teams />
+          : currentPath === '/benefits' ? <Benefits />
+            : currentPath === '/story' ? <Story />
+              : currentPath === '/payments' ? <Payments />
+                : <NotFound />}
       </main>
 
-      <footer className="site-footer"><div className="footer-main section-shell"><a href="#home" className="brand footer-brand"><span className="brand-icon">c<span>.</span></span><span className="brand-name">CROEVO</span></a><p className="footer-launch">Launching 15 October 2026.</p><div className="footer-links"><a href="#home">Home</a><a href="#experience">About</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></div><p className="footer-contact">For more information, DM me or Adhinav.</p></div><div className="footer-bottom section-shell"><span>© 2026 CROEVO</span><span>MADE FOR WHAT’S NEXT <i>✳</i></span><a href="#home">BACK TO TOP ↑</a></div></footer>
+      <SiteFooter />
 
-      {modalOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setModalOpen(false); }}><section className="waitlist-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button className="modal-close" aria-label="Close dialog" onClick={() => setModalOpen(false)}>×</button><div className="modal-mark">c<span>.</span></div><span className="eyebrow">A LITTLE MORE PATIENCE</span><h2 id="modal-title">The waitlist opens<br /><span>15 October 2026.</span></h2><p>Payment / registration link will be available here at launch.</p><button className="button button-secondary modal-done" onClick={() => setModalOpen(false)}>Got it</button></section></div>}
+      {modalOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setModalOpen(false); }}><section className="waitlist-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button className="modal-close" aria-label="Close dialog" onClick={() => setModalOpen(false)}>×</button><div className="modal-mark">c<span>.</span></div><span className="eyebrow">A LITTLE MORE PATIENCE</span><h2 id="modal-title">Payment opens<br /><span>15 October 2026.</span></h2><p>Your payment link will be available here at launch.</p><p>For more information, DM me or Adhinav.</p><button className="button button-secondary modal-done" onClick={() => setModalOpen(false)}>Got it</button></section></div>}
     </>
   );
 }
