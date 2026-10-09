@@ -5,6 +5,8 @@ import WaitlistButton from './components/WaitlistButton.jsx';
 import Benefits from './pages/Benefits.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Payments from './pages/Payments.jsx';
+import RefundPolicy from './pages/RefundPolicy.jsx';
+import Login from './pages/Login.jsx';
 import Story from './pages/Story.jsx';
 import Teams from './pages/Teams.jsx';
 
@@ -159,7 +161,9 @@ function App() {
           : currentPath === '/benefits' ? <Benefits />
             : currentPath === '/story' ? <Story />
               : currentPath === '/payments' ? <Payments />
-                : <NotFound />}
+                : currentPath === '/refund-policy' ? <RefundPolicy />
+                  : currentPath === '/login' ? <Login />
+                    : <NotFound />}
       </main>
 
       <SiteFooter />
